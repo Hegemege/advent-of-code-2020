@@ -1,15 +1,15 @@
 def part1(input_data):
-    return sum(map(password_valid, input_data))
+    return sum(map(password_valid_part1, input_data))
 
 
 def part2(input_data):
-    pass
+    return sum(map(password_valid_part2, input_data))
 
 
-def password_valid(line):
+def password_valid_part1(line):
     rule, password = line.split(": ")
     rule_range, rule_symbol = rule.split(" ")
-    rule_range_start, rule_range_end = tuple(map(int, rule_range.split("-")))
+    rule_range_start, rule_range_end = map(int, rule_range.split("-"))
     symbol_lookup = {}
     symbol_lookup[rule_symbol] = 0  # Make sure the rule symbol exists in the lookup
 
@@ -22,6 +22,15 @@ def password_valid(line):
         symbol_lookup[rule_symbol] >= rule_range_start
         and symbol_lookup[rule_symbol] <= rule_range_end
     )
+
+
+def password_valid_part2(line):
+    rule, password = line.split(": ")
+    rule_range, rule_symbol = rule.split(" ")
+    rule_range_start, rule_range_end = map(int, rule_range.split("-"))
+    return (password[rule_range_start - 1] == rule_symbol) + (
+        password[rule_range_end - 1] == rule_symbol
+    ) == 1
 
 
 if __name__ == "__main__":

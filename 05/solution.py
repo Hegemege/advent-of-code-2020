@@ -19,13 +19,9 @@ def part2(input_data):
     columns = create_partition("L", "R", 0, 8)
 
     seat_ids = sorted(
-        list(
-            map(
-                lambda line: get_seat_id(
-                    get_id(rows, line[:7]), get_id(columns, line[7:])
-                ),
-                input_data,
-            )
+        map(
+            lambda line: get_seat_id(get_id(rows, line[:7]), get_id(columns, line[7:])),
+            input_data,
         )
     )
     offset = min(seat_ids)

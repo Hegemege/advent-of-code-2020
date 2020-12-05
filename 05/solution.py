@@ -15,7 +15,25 @@ def part1(input_data):
 
 
 def part2(input_data):
-    pass
+    rows = create_partition("F", "B", 0, 128)
+    columns = create_partition("L", "R", 0, 8)
+
+    seat_ids = sorted(
+        list(
+            map(
+                lambda line: get_seat_id(
+                    get_id(rows, line[:7]), get_id(columns, line[7:])
+                ),
+                input_data,
+            )
+        )
+    )
+    offset = min(seat_ids)
+    for i in range(len(seat_ids)):
+        # Check if a boarding pass has every seat before it filled
+        # Missing seat is the one before
+        if seat_ids[i] != i + offset:
+            return seat_ids[i] - 1
 
 
 def get_id(partition, key):

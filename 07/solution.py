@@ -6,14 +6,12 @@ def part1(input_data):
     all_bags = {}
     for line in input_data:
         bag = parse_input_line(line)
-        bag["children"] = []
         bag["parents"] = []
         all_bags[bag["id"]] = bag
 
     # Link the graph
-    for k, v in all_bags.items():
+    for _, v in all_bags.items():
         for child in v["contents"]:
-            v["children"].append(all_bags[child[1]])
             all_bags[child[1]]["parents"].append(v)
 
     unique_bags = set()
@@ -29,7 +27,7 @@ def part2(input_data):
         all_bags[bag["id"]] = bag
 
     # Link the graph
-    for k, v in all_bags.items():
+    for _, v in all_bags.items():
         for child in v["contents"]:
             child_count, child_id = child
             v["children"][child_id] = child_count

@@ -22,13 +22,33 @@ def part1(input_data):
 
 
 def part2(input_data):
-    pass
+    all_bags = {}
+    for line in input_data:
+        bag = parse_input_line(line)
+        bag["children"] = {}
+        all_bags[bag["id"]] = bag
+
+    # Link the graph
+    for k, v in all_bags.items():
+        for child in v["contents"]:
+            child_count, child_id = child
+            v["children"][child_id] = child_count
+
+    return get_child_count(all_bags, "shiny gold")
 
 
 def get_parent_count(unique_bags, all_bags, bag_id):
     for parent in all_bags[bag_id]["parents"]:
         unique_bags.add(parent["id"])
         get_parent_count(unique_bags, all_bags, parent["id"])
+
+
+def get_child_count(all_bags, bag_id):
+    bag = all_bags[bag_id]
+    total = 0
+    for k, v in bag["children"].items():
+        total += v * (1 + get_child_count(all_bags, k))
+    return total
 
 
 def parse_input_line(line):

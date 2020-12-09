@@ -11,8 +11,14 @@ def part1(input_data):
             return input_data[i]
 
 
-def part2(input_data):
-    pass
+def part2(input_data, target):
+    for i in range(len(input_data)):
+        for j in range(i, len(input_data)):
+            result = sum(input_data[i:j])
+            if result > target:
+                break
+            elif result == target:
+                return min(input_data[i:j]) + max(input_data[i:j])
 
 
 def sum_in_preamble(preamble, item):
@@ -22,5 +28,6 @@ def sum_in_preamble(preamble, item):
 if __name__ == "__main__":
     with open("input", "r") as input_file:
         input_data = list(map(lambda x: int(x.strip()), input_file.readlines()))
-        print(part1(input_data))
-        print(part2(input_data))
+        part1_out = part1(input_data)
+        print(part1_out)
+        print(part2(input_data, part1_out))

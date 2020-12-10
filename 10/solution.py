@@ -6,7 +6,7 @@ from itertools import combinations
 def part1(input_data):
     joltage_diff_counts = {}
     input_data = [0] + input_data + [max(input_data) + 3]
-    input_data = sorted(list(input_data))
+    input_data = sorted(input_data)
     for i in range(1, len(input_data)):
         diff = input_data[i] - input_data[i - 1]
         if diff not in joltage_diff_counts:
@@ -16,7 +16,29 @@ def part1(input_data):
 
 
 def part2(input_data):
-    pass
+    input_data = [0] + input_data + [max(input_data) + 3]
+    input_data = sorted(input_data)
+
+    # Build a directed graph and aggregate parent sums
+    nodes = {}
+    for adapter in input_data:
+        nodes[adapter] = {"key": adapter, "sum": 0, "parents": []}
+
+    # Only at most 4 consecutive items in the list can be linked
+    for i in range(0, len(input_data)):
+        potential_children = input_data[i + 1 : i + 4]
+        for child in potential_children:
+            if child - input_data[i] > 3:
+                continue
+
+            nodes[child]["parents"].append(nodes[input_data[i]])
+
+    nodes[0]["sum"] = 1
+    for adapter in input_data:
+        for parent in nodes[adapter]["parents"]:
+            nodes[adapter]["sum"] += nodes[parent["key"]]["sum"]
+
+    return nodes[input_data[-1]]["sum"]
 
 
 if __name__ == "__main__":

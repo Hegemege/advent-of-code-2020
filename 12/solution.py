@@ -33,7 +33,24 @@ def move(position, direction, units):
 
 
 def part2(input_data):
-    pass
+    instructions = [(x[0], int(x[1:])) for x in input_data]
+    waypoint = 10 + 1j
+    position = 0 + 0j
+    directions = collections.OrderedDict(
+        [("E", 1 + 0j), ("S", 0 - 1j), ("W", -1 + 0j), ("N", 0 + 1j)]
+    )
+    facings = {"L": 1j, "R": -1j}
+    for instruction in instructions:
+        symbol, units = instruction
+        if symbol in directions:
+            direction = directions[symbol]
+            waypoint += direction * units
+        elif symbol in facings:
+            for i in range((units // 90)):
+                waypoint *= facings[symbol]
+        else:
+            position += waypoint * units
+    return int(abs(position.real) + abs(position.imag))
 
 
 if __name__ == "__main__":

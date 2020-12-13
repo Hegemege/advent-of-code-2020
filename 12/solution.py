@@ -13,8 +13,7 @@ def part1(input_data):
     for instruction in instructions:
         symbol, units = instruction
         if symbol in facings:
-            for _ in range((units // 90)):
-                facing *= facings[symbol]
+            facing *= facings[symbol] ** (units // 90)
         else:
             if symbol in directions:
                 direction = directions[symbol]
@@ -22,13 +21,6 @@ def part1(input_data):
                 direction = facing
             position += direction * units
     return int(abs(position.real) + abs(position.imag))
-
-
-def move(position, direction, units):
-    return (
-        position[0] + direction[0] * units,
-        position[1] + direction[1] * units,
-    )
 
 
 def part2(input_data):
@@ -43,8 +35,7 @@ def part2(input_data):
             direction = directions[symbol]
             waypoint += direction * units
         elif symbol in facings:
-            for _ in range((units // 90)):
-                waypoint *= facings[symbol]
+            waypoint *= facings[symbol] ** (units // 90)
         else:
             position += waypoint * units
     return int(abs(position.real) + abs(position.imag))

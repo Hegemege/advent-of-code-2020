@@ -6,11 +6,19 @@ import math
 
 
 def part1(input_data):
+    return number_game(input_data, 2020)
+
+
+def part2(input_data):
+    return number_game(input_data, 30000000)
+
+
+def number_game(input_data, turns):
     starting_numbers = list(map(int, input_data[0].split(",")))
     numbers = {starting_numbers[x]: x + 1 for x in range(len(starting_numbers) - 1)}
     t = len(starting_numbers)
     previous = starting_numbers[-1]
-    while t < 2020:
+    while t < turns:
         if previous not in numbers:
             numbers[previous] = t
             previous = 0
@@ -21,10 +29,6 @@ def part1(input_data):
             previous = diff
         t += 1
     return previous
-
-
-def part2(input_data):
-    pass
 
 
 if __name__ == "__main__":

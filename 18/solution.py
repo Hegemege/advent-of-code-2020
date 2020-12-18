@@ -10,12 +10,12 @@ def part1(input_data):
 
 
 def part2(input_data):
-    pass
+    return sum(map(evaluate_part2, input_data))
 
 
 def evaluate(expression):
     while "(" in expression:
-        expression = split_expression(expression)
+        expression = split_expression(expression, evaluate)
 
     terms = re.split(r"(\W)", expression)
     current = int(terms[0])
@@ -26,7 +26,24 @@ def evaluate(expression):
     return current
 
 
-def split_expression(expression):
+def evaluate_part2(expression):
+    while "(" in expression:
+        expression = split_expression(expression, evaluate_part2)
+
+    if "*" not in expression:
+        return eval(expression)
+    if "+" not in expression:
+        return eval(expression)
+
+    # Inject parenthesis to force the order
+    terms = re.split(r"(\W)", expression)
+    index = terms.index("+")
+    terms.insert(index + 2, ")")
+    terms.insert(index - 1, "(")
+    return evaluate_part2("".join(terms))
+
+
+def split_expression(expression, evaluator):
     # Find the first parenthesis and it's matching counterpart
     beginning = expression.index("(")
     end = len(expression) - 1
@@ -42,7 +59,7 @@ def split_expression(expression):
 
     return (
         expression[:beginning]
-        + str(evaluate(expression[beginning + 1 : end]))
+        + str(evaluator(expression[beginning + 1 : end]))
         + expression[end + 1 :]
     )
 

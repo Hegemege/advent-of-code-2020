@@ -6,13 +6,45 @@ import math
 
 
 def part1(input_data):
-    rules, data = input_data
+    rules, data = parse_input(input_data)
     data = data.split("\n")
     return sum(map(lambda x: matches_rule(x, rules), data))
 
 
 def part2(input_data):
-    pass
+    # Replace the rules 8 and 11
+    # for i in range(len(input_data)):
+    #    if input_data[i].startswith("8:"):
+    #        input_data[i] = "8: 42 | 42 8"
+    #    if input_data[i].startswith("11:"):
+    #        input_data[i] = "11: 42 31 | 42 11 31"
+    # The rules essentially turn into (42 = A, 31 = B):
+    # A AB
+    # AA AABB
+    # AAA AAABBB
+    # AAAA AAAABBBB etc.
+    # We could use a reasonable expectation to go through 10*10 combinations
+    # because the input size per line is rather small
+    rules, data = parse_input(input_data)
+    data = data.split("\n")
+
+    # print(subtree_as_regexp(42, rules))
+    # print(subtree_as_regexp(31, rules))
+
+    return sum(map(lambda x: matches_rule_part2(x, rules), data))
+
+
+def matches_rule_part2(entry, rules):
+    A = subtree_as_regexp(42, rules)
+    B = subtree_as_regexp(31, rules)
+
+    for j in range(1, 10):
+        for i in range(1, 10):
+            pattern = f"^{A*i}{A*j}{B*j}$"
+            if re.match(pattern, entry) != None:
+                return True
+
+    return False
 
 
 def matches_rule(entry, rules):
@@ -31,9 +63,9 @@ def subtree_as_regexp(key, rules):
 
     children = "|".join(
         map(
-            lambda y: "("
-            + "".join(map(lambda x: subtree_as_regexp(int(x["key"]), rules), y))
-            + ")",
+            lambda y: "".join(
+                map(lambda x: subtree_as_regexp(int(x["key"]), rules), y)
+            ),
             item["children"],
         )
     )
@@ -69,5 +101,5 @@ def parse_input(input_data):
 if __name__ == "__main__":
     with open("input", "r") as input_file:
         input_data = list(map(lambda x: x.strip(), input_file.readlines()))
-        print(part1(parse_input(input_data)))
-        print(part2(parse_input(input_data)))
+        print(part1(input_data))
+        print(part2(input_data))

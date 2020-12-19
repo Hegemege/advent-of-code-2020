@@ -38,8 +38,12 @@ def matches_rule_part2(entry, rules):
     A = subtree_as_regexp(42, rules)
     B = subtree_as_regexp(31, rules)
 
-    for j in range(1, 10):
-        for i in range(1, 10):
+    N = 10
+    # This could be deduced by figuring out the minimum pattern
+    # match length of A and B
+
+    for j in range(1, N):
+        for i in range(1, N):
             pattern = f"^{A*i}{A*j}{B*j}$"
             if re.match(pattern, entry) != None:
                 return True

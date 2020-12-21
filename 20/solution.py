@@ -9,6 +9,7 @@ class Tile:
     def __init__(self, ID, data):
         self.ID = ID
         self.data = data
+        self.neighbors = set()
 
     def get_orientations(self):
         forward = range(len(self.data))
@@ -31,13 +32,16 @@ class Tile:
         yield ["".join([self.data[j][i] for j in backward]) for i in backward]
 
 
-def part1(input_data):
+def part1_part2(input_data):
     data = parse_input(input_data)
+    image_size = 12  # tiles per axis
 
     # Run a counter for how many other tiles
     # the current tile can border with
     # The only tiles that interface with exactly two tiles for any given orientation must be the corners
     corners = set()
+    edges = set()
+    centers = set()
     for tile in data:
         fits = 0
         # We only need to check the edges of each tile, not the edges of each tiles
@@ -51,18 +55,38 @@ def part1(input_data):
                 for other_orientation in other_tile.get_orientations():
                     if edge == other_orientation[0]:
                         fits += 1
+                        tile.neighbors.add(other_tile.ID)
                         dobreak = True
                         break
                 if dobreak:
                     break
         if fits == 2:
             corners.add(tile.ID)
+        elif fits == 3:
+            edges.add(tile.ID)
+        elif fits == 4:
+            centers.add(tile.ID)
 
-    return functools.reduce(lambda a, b: a * b, list(corners), 1)
+    print(functools.reduce(lambda a, b: a * b, list(corners), 1))
 
+    image = [[None for i in range(image_size)] for j in range(image_size)]
 
-def part2(input_data):
-    pass
+    # Place one corner, and fill the rest by looping through all neighbor tiles
+    # and fitting them to empty slots in the image
+
+    all_tiles = {x.ID: x for x in data}
+
+    initial = list(corners)[0]
+    image[0][0] = all_tiles[initial]
+    del all_tiles[initial]
+
+    # while len(all_tiles) > 0:
+    #    pass
+
+    # Then, remove the corners from all tiles
+    # and reduce the image from tiles to one 2d image
+
+    # Finally, look for sea monsters!
 
 
 def get_edges(orientation):
@@ -81,5 +105,4 @@ def parse_input(input_data):
 if __name__ == "__main__":
     with open("input", "r") as input_file:
         input_data = list(map(lambda x: x.strip(), input_file.readlines()))
-        print(part1(input_data))
-        print(part2(input_data))
+        part1_part2(input_data)

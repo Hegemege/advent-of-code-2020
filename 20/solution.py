@@ -9,7 +9,7 @@ class Tile:
     def __init__(self, ID, data):
         self.ID = ID
         self.data = data
-        self.neighbors = set()
+        self.neighbors = {}
 
     def get_orientations(self):
         forward = range(len(self.data))
@@ -34,7 +34,8 @@ class Tile:
 
 def part1_part2(input_data):
     data = parse_input(input_data)
-    image_size = 12  # tiles per axis
+    image_size = int(math.sqrt(len(data)))  # tiles per axis
+    tile_size = 10
 
     # Run a counter for how many other tiles
     # the current tile can border with
@@ -55,7 +56,8 @@ def part1_part2(input_data):
                 for other_orientation in other_tile.get_orientations():
                     if edge == other_orientation[0]:
                         fits += 1
-                        tile.neighbors.add(other_tile.ID)
+                        tile.neighbors[other_tile.ID] = other_tile
+                        other_tile.neighbors[tile.ID] = tile
                         dobreak = True
                         break
                 if dobreak:
@@ -76,17 +78,104 @@ def part1_part2(input_data):
 
     all_tiles = {x.ID: x for x in data}
 
+    # Take the first corner and rotate it such that it has two fitting neighbors on the right and bottom side
+
     initial = list(corners)[0]
-    image[0][0] = all_tiles[initial]
+    for orientation in all_tiles[initial].get_orientations():
+        fits_right = False
+        fits_below = False
+        right_edge = list(get_edges(orientation))[3]
+        bottom_edge = list(get_edges(orientation))[1]
+        for _, v in all_tiles[initial].neighbors.items():
+            for neighbor_orientation in v.get_orientations():
+                left_edge = list(get_edges(neighbor_orientation))[2]
+                top_edge = list(get_edges(neighbor_orientation))[0]
+                if right_edge == left_edge:
+                    fits_right = True
+                    break
+                if bottom_edge == top_edge:
+                    fits_below = True
+                    break
+
+        if fits_below and fits_right:
+            image[0][0] = orientation
+            break
+
     del all_tiles[initial]
 
-    # while len(all_tiles) > 0:
-    #    pass
+    keys = list(all_tiles.keys())
 
-    # Then, remove the corners from all tiles
+    while len(all_tiles) > 0:
+        tile_id = keys.pop(0)
+        tile = all_tiles[tile_id]
+        dobreak = False
+        for j in range(image_size):
+            for i in range(image_size):
+                if image[j][i] is not None:
+                    continue
+
+                # Check the neighbor before on the row and the one in the previous row.
+                # If either fits, the piece fits
+                for orientation in tile.get_orientations():
+                    fits = False
+                    tile_edges = list(get_edges(orientation))
+                    if image[j][i - 1] is not None and i > 0:
+                        neighbor_edges = list(get_edges(image[j][i - 1]))
+                        if tile_edges[2] == neighbor_edges[3]:
+                            fits = True
+                    if image[j - 1][i] is not None and j > 0:
+                        neighbor_edges = list(get_edges(image[j - 1][i]))
+                        if tile_edges[0] == neighbor_edges[1]:
+                            fits = True
+
+                    if fits:
+                        del all_tiles[tile.ID]
+                        image[j][i] = orientation
+                        dobreak = True
+                        break
+                if dobreak:
+                    break
+            if dobreak:
+                break
+        if not dobreak:
+            keys.append(tile_id)
+
+    # Then, remove edges corners from the data in the image
     # and reduce the image from tiles to one 2d image
+    image = [
+        [cell[j][i] for cell in row for i in range(1, tile_size - 1)]
+        for row in image
+        for j in range(1, tile_size - 1)
+    ]
 
-    # Finally, look for sea monsters!
+    monster = ["                  # ", "#    ##    ##    ###", " #  #  #  #  #  #   "]
+
+    image = Tile(0, image)
+    has_monster = False
+    for orientation in image.get_orientations():
+        orientation = [list(x) for x in orientation]
+        for j in range(len(orientation) - len(monster) + 1):
+            for i in range(len(orientation[j]) - len(monster[0]) + 1):
+                dobreak = False
+                for mj in range(len(monster)):
+                    for mi in range(len(monster[mj])):
+                        if monster[mj][mi] == " ":
+                            continue
+                        if monster[mj][mi] != orientation[j + mj][i + mi]:
+                            dobreak = True
+                            break
+                    if dobreak:
+                        break
+                if not dobreak:
+                    has_monster = True
+                    for mj in range(len(monster)):
+                        for mi in range(len(monster[mj])):
+                            if monster[mj][mi] == " ":
+                                continue
+                            orientation[j + mj][i + mi] = "O"
+        if has_monster:
+            print(sum(map(lambda x: sum(map(lambda y: y == "#", x)), orientation)))
+            return
 
 
 def get_edges(orientation):
